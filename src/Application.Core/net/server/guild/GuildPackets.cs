@@ -88,19 +88,26 @@ public class GuildPackets
         return p;
     }
 
-    /**
-     * Gets a Heracle/guild message packet.
-     * <p>
-     * Possible values for <code>code</code>:<br> 28: guild name already in use<br>
-     * 31: problem in locating players during agreement<br> 33/40: already joined a guild<br>
-     * 35: Cannot make guild<br> 36: problem in player agreement<br> 38: problem during forming guild<br>
-     * 41: max number of players in joining guild<br> 42: character can't be found this channel<br>
-     * 45/48: character not in guild<br> 52: problem in disbanding guild<br> 56: admin cannot make guild<br>
-     * 57: problem in increasing guild size<br>
-     *
-     * @param code The response code.
-     * @return The guild message packet.
-     */
+    /// <summary>
+    /// Gets a Heracle/guild message packet.
+    /// </summary>
+    /// <param name="code">
+    /// The response code.
+    /// <para>28: guild name already in use</para>
+    /// <para>31: problem in locating players during agreement</para>
+    /// <para>33/40: already joined a guild</para>
+    /// <para>35: Cannot make guild</para>
+    /// <para>36: problem in player agreement</para>
+    /// <para>38: problem during forming guild</para>
+    /// <para>41: max number of players in joining guild</para>
+    /// <para>42: character can't be found this channel</para>
+    /// <para>45/48: character not in guild</para>
+    /// <para>52: problem in disbanding guild</para>
+    /// <para>56: admin cannot make guild</para>
+    /// <para>57: problem in increasing guild size</para>
+    /// <para></para>
+    /// </param>
+    /// <returns>The guild message packet.</returns>
     public static Packet genericGuildMessage(byte code)
     {
         OutPacket p = OutPacket.create(SendOpcode.GUILD_OPERATION);

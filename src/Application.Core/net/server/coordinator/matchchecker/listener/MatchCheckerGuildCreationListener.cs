@@ -130,9 +130,9 @@ namespace Application.Core.net.server.coordinator.matchchecker.listener
         {
             foreach (var chr in matchPlayers)
             {
-                if (chr.getId() == leaderid && chr.getClient() != null)
+                if (chr.getId() == leaderid)
                 {
-                    TeamManager.leaveParty(chr.getParty(), chr.getClient());
+                    TeamManager.LeaveParty(chr.getParty(), chr);
                 }
 
                 if (chr.isLoggedinWorld())
@@ -159,9 +159,9 @@ namespace Application.Core.net.server.coordinator.matchchecker.listener
 
             foreach (var chr in matchPlayers)
             {
-                if (chr.getId() == leaderid && chr.getClient() != null)
+                if (chr.getId() == leaderid)
                 {
-                    TeamManager.leaveParty(chr.getParty()!, chr.getClient());
+                    TeamManager.LeaveParty(chr.getParty()!, chr);
                 }
 
                 if (chr.isLoggedinWorld())

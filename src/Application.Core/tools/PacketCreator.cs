@@ -4229,19 +4229,22 @@ public class PacketCreator
         return p;
     }
 
-    /**
-     * 10: A beginner can't create a party. 1/5/6/11/14/19: Your request for a
-     * party didn't work due to an unexpected error. 12: Quit as leader of the
-     * party. 13: You have yet to join a party.
-     * 16: Already have joined a party. 17: The party you're trying to join is
-     * already in full capacity. 19: Unable to find the requested character in
-     * this channel. 25: Cannot kick another user in this map. 28/29: Leadership
-     * can only be given to a party member in the vicinity. 30: Change leadership
-     * only on same channel.
-     *
-     * @param message
-     * @return
-     */
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="message">
+    /// <para>10: A beginner can't create a party.</para>
+    /// <para>1/5/6/11/14/19: Your request for a party didn't work due to an unexpected error.</para>
+    /// <para>12: Quit as leader of the party.</para>
+    /// <para>13: You have yet to join a party.</para>
+    /// <para>16: Already have joined a party.</para>
+    /// <para>17: The party you're trying to join is already in full capacity.</para>
+    /// <para>19: Unable to find the requested character in this channel.</para>
+    /// <para>25: Cannot kick another user in this map.</para>
+    /// <para>28/29: Leadership can only be given to a party member in the vicinity.</para>
+    /// <para>30: Change leadership only on same channel.</para>
+    /// </param>
+    /// <returns></returns>
     public static Packet partyStatusMessage(int message)
     {
         OutPacket p = OutPacket.create(SendOpcode.PARTY_OPERATION);
@@ -4249,14 +4252,17 @@ public class PacketCreator
         return p;
     }
 
-    /**
-     * 21: Player is blocking any party invitations, 22: Player is taking care of
-     * another invitation, 23: Player have denied request to the party.
-     *
-     * @param message
-     * @param charname
-     * @return
-     */
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="message">
+    /// <para>21: Player is blocking any party invitations</para>
+    /// <para>22: Player is taking care of another invitation</para>
+    /// <para>23: Player have denied request to the party.</para>
+    /// </param>
+    /// <param name="charname"></param>
+    /// <returns></returns>
     public static Packet partyStatusMessage(int message, string charname)
     {
         OutPacket p = OutPacket.create(SendOpcode.PARTY_OPERATION);

@@ -114,7 +114,7 @@ public class MonsterCarnivalHandler : AbstractPacketHandler
                             int hitChance = rollHitChance(dis?.getMobSkillType());
                             if (hitChance <= 80)
                             {
-                                foreach (var mc in enemies.getPartyMembers())
+                                foreach (var mc in enemies.getMembers())
                                 {
                                     if (mc != null)
                                     {
@@ -132,9 +132,7 @@ public class MonsterCarnivalHandler : AbstractPacketHandler
                         }
                         else
                         {
-                            int amount = enemies.getMembers().Count - 1;
-                            int randd = (int)Math.Floor(Randomizer.nextDouble() * amount);
-                            var chrApp = c.OnlinedCharacter.getMap().getCharacterById(enemies.getMemberByPos(randd).getId());
+                            var chrApp = c.OnlinedCharacter.getMap().getCharacterById(enemies.GetRandomMember().getId());
                             if (chrApp != null && chrApp.getMap().isCPQMap())
                             {
                                 if (dis == null)

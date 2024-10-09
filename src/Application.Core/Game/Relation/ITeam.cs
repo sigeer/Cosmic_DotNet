@@ -1,4 +1,5 @@
-﻿using server.maps;
+﻿using Application.Core.Game.TheWorld;
+using server.maps;
 
 namespace Application.Core.Game.Relation
 {
@@ -7,9 +8,11 @@ namespace Application.Core.Game.Relation
     /// </summary>
     public interface ITeam
     {
+        public int World { get; }
+        public IWorld WorldServer { get; }
         void addDoor(int owner, Door door);
         void addMember(IPlayer member);
-        void assignNewLeader(IClient c);
+        void AssignNewLeader();
         bool containsMembers(IPlayer member);
         bool Equals(object? obj);
         Dictionary<int, Door> getDoors();
@@ -20,11 +23,10 @@ namespace Application.Core.Game.Relation
         IPlayer getLeader();
         int getLeaderId();
         IPlayer? getMemberById(int id);
-        IPlayer? getMemberByPos(int pos);
+        IPlayer GetRandomMember();
         ICollection<IPlayer> getMembers();
         List<int> getMembersSortedByHistory();
         sbyte getPartyDoor(int cid);
-        List<IPlayer> getPartyMembers();
         List<IPlayer> getPartyMembersOnline();
         void removeDoor(int owner);
         void removeMember(IPlayer member);

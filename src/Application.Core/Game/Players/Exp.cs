@@ -14,12 +14,7 @@ namespace Application.Core.Game.Players
             gainExp(gain, true, true);
         }
 
-        public void gainExp(int gain, bool show, bool inChat)
-        {
-            gainExp(gain, show, inChat, true);
-        }
-
-        public void gainExp(int gain, bool show, bool inChat, bool white)
+        public void gainExp(int gain, bool show, bool inChat, bool white = true)
         {
             gainExp(gain, 0, show, inChat, white);
         }
@@ -47,12 +42,8 @@ namespace Application.Core.Game.Players
             gainExpInternal(gain, equip, party, show, inChat, white);
         }
 
-        public void loseExp(int loss, bool show, bool inChat)
-        {
-            loseExp(loss, show, inChat, true);
-        }
 
-        public void loseExp(int loss, bool show, bool inChat, bool white)
+        public void loseExp(int loss, bool show, bool inChat, bool white = true)
         {
             gainExpInternal(-loss, 0, 0, show, inChat, white);
         }

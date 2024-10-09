@@ -46,16 +46,16 @@ namespace Application.Core.Managers
                 return false;
             }
         }
-        public static void leaveParty(ITeam party, IClient c)
-        {
-            var world = c.getWorldServer();
-            var player = c.getPlayer();
 
+        public static void LeaveParty(ITeam? party, IPlayer? player)
+        {
             if (party != null && player != null)
             {
+                var world = player.getWorldServer();
+
                 if (player.Id == party.getLeaderId())
                 {
-                    c.getWorldServer().removeMapPartyMembers(party.getId());
+                    world.removeMapPartyMembers(party.getId());
 
                     var mcpq = player.getMonsterCarnival();
                     if (mcpq != null)
@@ -96,7 +96,7 @@ namespace Application.Core.Managers
 
                 player.setParty(null);
 
-                MatchCheckerCoordinator mmce = c.getWorldServer().getMatchCheckerCoordinator();
+                MatchCheckerCoordinator mmce = world.getMatchCheckerCoordinator();
                 if (mmce.getMatchConfirmationLeaderid(player.getId()) == player.getId() && mmce.getMatchConfirmationType(player.getId()) == MatchCheckerType.GUILD_CREATION)
                 {
                     mmce.dismissMatchConfirmation(player.getId());

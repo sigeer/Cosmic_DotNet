@@ -1097,7 +1097,6 @@ public class Client : ChannelHandlerAdapter, IClient
             if (chr == null)
                 return false;
 
-            chr.setClient(this);
             this.setPlayer(chr);
 
             if (chr.Party > 0)

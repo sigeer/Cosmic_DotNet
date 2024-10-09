@@ -204,8 +204,7 @@ namespace Application.Core.Game.Players
         void gainAriantPoints(int points);
         void gainCP(int gain);
         void gainExp(int gain);
-        void gainExp(int gain, bool show, bool inChat);
-        void gainExp(int gain, bool show, bool inChat, bool white);
+        void gainExp(int gain, bool show, bool inChat, bool white = true);
         void gainExp(int gain, int party, bool show, bool inChat, bool white);
         void gainFame(int delta);
         bool gainFame(int delta, IPlayer? fromPlayer, int mode);
@@ -506,8 +505,7 @@ namespace Application.Core.Game.Players
         bool leaveParty();
         void levelUp(bool takeexp);
         void logOff();
-        void loseExp(int loss, bool show, bool inChat);
-        void loseExp(int loss, bool show, bool inChat, bool white);
+        void loseExp(int loss, bool show, bool inChat, bool white = true);
         bool mergeAllItemsFromName(string name);
         void mergeAllItemsFromPosition(Dictionary<Equip.StatUpgrade, float> statups, short pos);
         void message(string m);

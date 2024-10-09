@@ -1,5 +1,9 @@
-﻿using net.server.world;
+﻿using Application.Core.Game.TheWorld;
+using net.server;
+using net.server.world;
 using server.maps;
+using System.Collections.Concurrent;
+using tools;
 
 namespace Application.Core.Game.Relation
 {
@@ -8,33 +12,30 @@ namespace Application.Core.Game.Relation
         private int id;
         private ITeam? enemy = null;
         private int leaderId;
-        private List<IPlayer> members = new();
+        private ConcurrentDictionary<int, IPlayer> members = new();
         private List<IPlayer> pqMembers = new List<IPlayer>();
 
+        /// <summary>
+        /// 队伍中所有历史成员？
+        /// </summary>
         private Dictionary<int, int> histMembers = new();
         private int nextEntry = 0;
 
-        private Dictionary<int, Door> doors = new();
+        private ConcurrentDictionary<int, Door> doors = new();
 
         private object lockObj = new object();
-
+        public int World { get; }
+        public IWorld WorldServer => Server.getInstance().getWorld(World);
         public Team(int id, IPlayer chrfor)
         {
             this.leaderId = chrfor.getId();
+            World = chrfor.getWorld();
             this.id = id;
         }
 
         public bool containsMembers(IPlayer member)
         {
-            Monitor.Enter(lockObj);
-            try
-            {
-                return members.Contains(member);
-            }
-            finally
-            {
-                Monitor.Exit(lockObj);
-            }
+            return members.ContainsKey(member.Id);
         }
 
         public void addMember(IPlayer member)
@@ -45,7 +46,7 @@ namespace Application.Core.Game.Relation
                 histMembers.AddOrUpdate(member.getId(), nextEntry);
                 nextEntry++;
 
-                members.Add(member);
+                members.AddOrUpdate(member.Id, member);
             }
             finally
             {
@@ -60,7 +61,7 @@ namespace Application.Core.Game.Relation
             {
                 histMembers.Remove(member.getId());
 
-                members.Remove(member);
+                members.Remove(member.Id);
             }
             finally
             {
@@ -75,83 +76,22 @@ namespace Application.Core.Game.Relation
 
         public void updateMember(IPlayer member)
         {
-            Monitor.Enter(lockObj);
-            try
-            {
-                for (int i = 0; i < members.Count; i++)
-                {
-                    if (members.get(i).getId() == member.getId())
-                    {
-                        members.set(i, member);
-                    }
-                }
-            }
-            finally
-            {
-                Monitor.Exit(lockObj);
-            }
+            members[member.Id] = member;
         }
 
         public IPlayer? getMemberById(int id)
         {
-            Monitor.Enter(lockObj);
-            try
-            {
-                return members.FirstOrDefault(x => x.getId() == id);
-            }
-            finally
-            {
-                Monitor.Exit(lockObj);
-            }
+            return members.TryGetValue(id, out var d) ? d : null;
         }
 
         public ICollection<IPlayer> getMembers()
         {
-            Monitor.Enter(lockObj);
-            try
-            {
-                return members.ToList();
-            }
-            finally
-            {
-                Monitor.Exit(lockObj);
-            }
-        }
-
-        public List<IPlayer> getPartyMembers()
-        {
-            Monitor.Enter(lockObj);
-            try
-            {
-                return new(members);
-            }
-            finally
-            {
-                Monitor.Exit(lockObj);
-            }
+            return members.Values.ToList();
         }
 
         public List<IPlayer> getPartyMembersOnline()
         {
-            Monitor.Enter(lockObj);
-            try
-            {
-                List<IPlayer> ret = new();
-
-                foreach (IPlayer mpc in members)
-                {
-                    if (mpc.IsOnlined)
-                    {
-                        ret.Add(mpc);
-                    }
-                }
-
-                return ret;
-            }
-            finally
-            {
-                Monitor.Exit(lockObj);
-            }
+            return getMembers().Where(x => x.IsOnlined).ToList();
         }
 
         // used whenever entering PQs: will draw every party member that can attempt a target PQ while ingnoring those unfit.
@@ -182,15 +122,7 @@ namespace Application.Core.Game.Relation
 
         public IPlayer getLeader()
         {
-            Monitor.Enter(lockObj);
-            try
-            {
-                return members.FirstOrDefault(x => x.getId() == leaderId) ?? throw new BusinessException();
-            }
-            finally
-            {
-                Monitor.Exit(lockObj);
-            }
+            return getMemberById(leaderId) ?? throw new BusinessException();
         }
 
         public ITeam? getEnemy()
@@ -218,95 +150,36 @@ namespace Application.Core.Game.Relation
             }
 
             histList.Sort((o1, o2) => (o1.Value).CompareTo(o2.Value));
-
-            List<int> histSort = new();
-            foreach (var e in histList)
-            {
-                histSort.Add(e.Key);
-            }
-
-            return histSort;
+            return histList.Select(x => x.Key).ToList();
         }
 
         public sbyte getPartyDoor(int cid)
         {
             List<int> histList = getMembersSortedByHistory();
-            sbyte slot = 0;
-            foreach (int e in histList)
-            {
-                if (e == cid)
-                {
-                    break;
-                }
-                slot++;
-            }
-
-            return slot;
+            return (sbyte)histList.IndexOf(cid);
         }
 
         public void addDoor(int owner, Door door)
         {
-            Monitor.Enter(lockObj);
-            try
-            {
-                this.doors.AddOrUpdate(owner, door);
-            }
-            finally
-            {
-                Monitor.Exit(lockObj);
-            }
+            this.doors.AddOrUpdate(owner, door);
         }
 
         public void removeDoor(int owner)
         {
-            Monitor.Enter(lockObj);
-            try
-            {
-                this.doors.Remove(owner);
-            }
-            finally
-            {
-                Monitor.Exit(lockObj);
-            }
+            this.doors.Remove(owner);
         }
 
         public Dictionary<int, Door> getDoors()
         {
-            Monitor.Enter(lockObj);
-            try
-            {
-                return new Dictionary<int, Door>(doors);
-            }
-            finally
-            {
-                Monitor.Exit(lockObj);
-            }
+            return new Dictionary<int, Door>(doors);
         }
 
-        public void assignNewLeader(IClient c)
+        public void AssignNewLeader()
         {
-            var world = c.getWorldServer();
-            IPlayer? newLeadr = null;
-
-            Monitor.Enter(lockObj);
-            try
-            {
-                foreach (IPlayer mpc in members)
-                {
-                    if (mpc.getId() != leaderId && (newLeadr == null || newLeadr.getLevel() < mpc.getLevel()))
-                    {
-                        newLeadr = mpc;
-                    }
-                }
-            }
-            finally
-            {
-                Monitor.Exit(lockObj);
-            }
-
+            var newLeadr = getMembers().Where(x => x.Id != leaderId).OrderByDescending(x => x.Level).FirstOrDefault();
             if (newLeadr != null)
             {
-                world.updateParty(this.getId(), PartyOperation.CHANGE_LEADER, newLeadr);
+                WorldServer.updateParty(this.getId(), PartyOperation.CHANGE_LEADER, newLeadr);
             }
         }
 
@@ -318,9 +191,10 @@ namespace Application.Core.Game.Relation
             return result;
         }
 
-        public IPlayer? getMemberByPos(int pos)
+        public IPlayer GetRandomMember()
         {
-            return members.ElementAtOrDefault(pos);
+            var allMembers = getMembers();
+            return Randomizer.Select(allMembers);
         }
 
         public override bool Equals(object? obj)

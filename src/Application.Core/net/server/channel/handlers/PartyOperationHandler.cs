@@ -53,7 +53,7 @@ public class PartyOperationHandler : AbstractPacketHandler
                     {
                         var partymembers = player.getPartyMembersOnline();
 
-                        TeamManager.leaveParty(party, c);
+                        TeamManager.LeaveParty(party, player);
                         player.updatePartySearchAvailability(true);
                         player.partyOperationUpdate(party, partymembers);
                     }
