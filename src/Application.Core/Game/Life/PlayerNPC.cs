@@ -542,7 +542,7 @@ public class PlayerNPC : AbstractMapObject
         return spawnPlayerNPC(mapid, null, chr);
     }
 
-    public static bool spawnPlayerNPC(int mapid, Point? pos, IPlayer chr)
+    public static bool spawnPlayerNPC(int mapid, Point? pos, IPlayer? chr)
     {
         if (chr == null)
         {

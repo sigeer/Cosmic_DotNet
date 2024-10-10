@@ -21,13 +21,13 @@
  */
 
 
+using Application.Core.Game.Commands;
 using Application.Core.Game.Life;
 using Application.Core.Game.Relation;
 using Application.Core.Game.TheWorld;
 using Application.Core.Managers;
 using Application.Core.model;
 using client;
-using client.command;
 using client.inventory.manipulator;
 using client.newyear;
 using client.processor.npc;
@@ -1035,7 +1035,7 @@ public class Server
         log.Information("Cosmic is now online after {Startup} s.", totalSw.Elapsed.TotalSeconds);
 
         OpcodeConstants.generateOpcodeNames();
-        CommandsExecutor.getInstance();
+        CommandExecutor.getInstance();
 
         foreach (var ch in this.getAllChannels())
         {

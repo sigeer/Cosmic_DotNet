@@ -9,6 +9,7 @@ using provider.wz;
 using server.maps;
 using server.quest;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace constants.game;
 
@@ -319,16 +320,9 @@ public class GameConstants
         {
             Job job = JobUtils.getById(jobid);
 
-            if (job != null)
-            {
-                name = job.ToString().ToLower();
-                name = name.Replace("[*0-9]", "");
-                name = name.Substring(0, 1).ToUpper() + name.Substring(1);
-            }
-            else
-            {
-                name = "";
-            }
+            name = job.ToString().ToLower();
+            name = Regex.Replace(name, "[0-9]", "");
+            name = name.Substring(0, 1).ToUpper() + name.Substring(1);
 
             jobNames.AddOrUpdate(jobid, name);
         }

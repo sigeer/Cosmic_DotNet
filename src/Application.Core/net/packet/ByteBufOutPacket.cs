@@ -64,7 +64,7 @@ public class ByteBufOutPacket : OutPacket
 
     public void writeSBytes(sbyte[] value)
     {
-        byteBuf.WriteBytes(value.OfType<byte>().ToArray());
+        byteBuf.WriteBytes(value.Cast<byte>().ToArray());
     }
 
     public void writeShort(int value)

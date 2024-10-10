@@ -1,6 +1,9 @@
 ﻿using Application.Core.Game.Items;
+using client.inventory;
 using client.inventory.manipulator;
+using constants.inventory;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using server;
 
 namespace Application.Core.Managers
@@ -71,5 +74,52 @@ namespace Application.Core.Managers
             }
         }
         #endregion
+
+        public static void UpdateEquip(IPlayer player, int newStat, int newSpdJmp)
+        {
+            Inventory equip = player.getInventory(InventoryType.EQUIP);
+
+            for (byte i = 1; i <= equip.getSlotLimit(); i++)
+            {
+                try
+                {
+                    var eq = (Equip?)equip.getItem(i);
+                    if (eq == null)
+                    {
+                        continue;
+                    }
+
+                    SetEquipStat(eq, newStat, newSpdJmp);
+
+                    player.forceUpdateItem(eq);
+                }
+                catch (Exception e)
+                {
+                    player.Log.Error(e.ToString());
+                }
+            }
+        }
+
+        public static void SetEquipStat(Equip equip, int stat, int spdjmp)
+        {
+            equip.setStr(stat);
+            equip.setDex(stat);
+            equip.setInt(stat);
+            equip.setLuk(stat);
+            equip.setMatk(stat);
+            equip.setWatk(stat);
+            equip.setAcc(stat);
+            equip.setAvoid(stat);
+            equip.setJump(spdjmp);
+            equip.setSpeed(spdjmp);
+            equip.setWdef(stat);
+            equip.setMdef(stat);
+            equip.setHp(stat);
+            equip.setMp(stat);
+
+            short flag = equip.getFlag();
+            flag |= ItemConstants.UNTRADEABLE;
+            equip.setFlag(flag);
+        }
     }
 }

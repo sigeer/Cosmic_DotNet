@@ -1464,6 +1464,9 @@ public class Client : ChannelHandlerAdapter, IClient
     private object announcerLock = new object();
     public void sendPacket(Packet packet)
     {
+        if (type == Type.Mock)
+            return;
+
         Monitor.Enter(announcerLock);
         try
         {

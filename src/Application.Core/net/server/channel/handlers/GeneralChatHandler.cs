@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
+using Application.Core.Game.Commands;
 using client.autoban;
-using client.command;
 using net.packet;
 using server;
 using tools;
@@ -48,9 +48,9 @@ public class GeneralChatHandler : AbstractPacketHandler
             return;
         }
         char heading = s.ElementAt(0);
-        if (CommandsExecutor.isCommand(c, s))
+        if (CommandExecutor.isCommand(c, s))
         {
-            CommandsExecutor.getInstance().handle(c, s);
+            CommandExecutor.getInstance().handle(c, s);
         }
         else if (heading != '/')
         {

@@ -202,7 +202,8 @@ public class CloseRangeDamageHandler : AbstractDealDamageHandler
             }
         }
         if ((chr.getSkillLevel(SkillFactory.GetSkillTrust(NightWalker.VANISH)) > 0 || chr.getSkillLevel(SkillFactory.GetSkillTrust(Rogue.DARK_SIGHT)) > 0) && chr.getBuffedValue(BuffStat.DARKSIGHT) != null)
-        {// && chr.getBuffSource(BuffStat.DARKSIGHT) != 9101004
+        {
+            // && chr.getBuffSource(BuffStat.DARKSIGHT) != 9101004
             chr.cancelEffectFromBuffStat(BuffStat.DARKSIGHT);
             chr.cancelBuffStats(BuffStat.DARKSIGHT);
         }

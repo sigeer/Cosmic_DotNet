@@ -21,19 +21,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
+using Application.Core.Game.Commands;
 using Application.Core.Game.Life;
-using Application.Core.Game.Maps;
 using Application.Core.Managers;
 using Application.Core.Scripting.Infrastructure;
 using client;
-using client.command;
 using client.inventory;
 using client.inventory.manipulator;
 using constants.game;
 using constants.id;
+using Microsoft.JSInterop.Implementation;
 using net.server;
 using net.server.channel;
-using net.server.channel.handlers;
 using server;
 using server.expeditions;
 using server.gachapon;
@@ -76,7 +75,7 @@ public abstract class AbstractScriptManager
             engine.AddHostedType("Rectangle", typeof(Rectangle));
             engine.AddHostedType("RingManager", typeof(RingManager));
             engine.AddHostedType("Channel", typeof(WorldChannel));
-            engine.AddHostedType("CommandsExecutor", typeof(CommandsExecutor));
+            engine.AddHostedType("CommandExecutor", typeof(CommandExecutor));
             engine.AddHostedType("CharacterManager", typeof(CharacterManager));
             engine.AddHostedType("Gachapon", typeof(Gachapon));
             engine.AddHostedType("ItemInformationProvider", typeof(ItemInformationProvider));

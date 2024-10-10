@@ -738,10 +738,7 @@ public partial class Player
         }
     }
 
-    public void changeCI(int type)
-    {
-        this.ci = type;
-    }
+
 
     public void setMasteries(int jobId)
     {
@@ -1375,10 +1372,7 @@ public partial class Player
     }
 
 
-    public void changePage(int page)
-    {
-        this.currentPage = page;
-    }
+
 
     public void changeSkillLevel(Skill skill, sbyte newLevel, int newMasterlevel, long expiration)
     {
@@ -1399,15 +1393,7 @@ public partial class Player
         }
     }
 
-    public void changeTab(int tab)
-    {
-        this.currentTab = tab;
-    }
 
-    public void changeType(int type)
-    {
-        this.currentType = type;
-    }
 
     public void checkBerserk(bool isHidden)
     {
@@ -2270,14 +2256,26 @@ public partial class Player
         return crushRings;
     }
 
+    public void changeCI(int type)
+    {
+        this.ci = type;
+    }
     public int getCurrentCI()
     {
         return ci;
     }
 
+    public void changePage(int page)
+    {
+        this.currentPage = page;
+    }
     public int getCurrentPage()
     {
         return currentPage;
+    }
+    public void changeTab(int tab)
+    {
+        this.currentTab = tab;
     }
 
     public int getCurrentTab()
@@ -2285,6 +2283,10 @@ public partial class Player
         return currentTab;
     }
 
+    public void changeType(int type)
+    {
+        this.currentType = type;
+    }
     public int getCurrentType()
     {
         return currentType;
