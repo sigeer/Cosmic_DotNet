@@ -4,6 +4,7 @@ using Application.Core.Scripting.Infrastructure;
 using DotNetty.Handlers.Timeout;
 using DotNetty.Transport.Channels;
 using net.packet;
+using net.server;
 using net.server.channel;
 using net.server.coordinator.session;
 using scripting;
@@ -209,16 +210,14 @@ namespace Application.Core.Game
         {
             return 0;
         }
-
-        IWorldChannel? _channelServer;
         public IWorldChannel getChannelServer()
         {
-            return _channelServer ??= new WorldChannel(getWorldServer(), _channel, 0);
+            return getWorldServer().getChannel(_channel);
         }
 
         public IWorldChannel getChannelServer(byte channel)
         {
-            return new WorldChannel(getWorldServer(), channel, 0);
+            return getWorldServer().getChannel(channel);
         }
 
         public short getCharacterSlots()
@@ -339,7 +338,9 @@ namespace Application.Core.Game
         IWorld? _worldServer;
         public IWorld getWorldServer()
         {
-            return _worldServer ??= new World(_world, 0, "", 1, 1, 1, 1, 1, 1, 1);
+            if (_worldServer == null)
+                _worldServer = Server.getInstance().getWorld(Server.getInstance().addWorld());
+            return _worldServer;
         }
 
         public bool hasBannedHWID()

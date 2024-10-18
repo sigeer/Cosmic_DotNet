@@ -35,6 +35,7 @@ using server;
 using server.expeditions;
 using server.life;
 using server.maps;
+using System.Reflection;
 using tools;
 
 namespace scripting.Event;
@@ -82,7 +83,7 @@ public class EventInstanceManager
     private Dictionary<int, int> playerGrid = new();
 
     // registers all opened gates on the event. Will help late characters to encounter next stages gates already opened
-    private Dictionary<int, KeyValuePair<string, int>> openedGates = new();
+    private Dictionary<int, KeyValuePair<string, int>?> openedGates = new();
 
     // forces deletion of items not supposed to be held outside of the event, dealt on a player's leaving moment.
     private HashSet<int> exclusiveItems = new();
@@ -270,7 +271,7 @@ public class EventInstanceManager
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex.ToString());
+                    log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "playerEntry", em.getName());
                 }
             }
         }
@@ -292,7 +293,7 @@ public class EventInstanceManager
         }
         catch (Exception ex)
         {
-            log.Error(ex.ToString());
+            log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "playerExit", em.getName());
         }
     }
 
@@ -535,7 +536,7 @@ public class EventInstanceManager
         }
         catch (Exception ex)
         {
-            log.Error(ex.ToString());
+            log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "moveMap", em.getName());
         }
     }
 
@@ -547,7 +548,7 @@ public class EventInstanceManager
         }
         catch (Exception ex)
         {
-            log.Error(ex.ToString());
+            log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "changedMap", em.getName());
         } // optional
     }
 
@@ -559,7 +560,7 @@ public class EventInstanceManager
         }
         catch (Exception ex)
         {
-            log.Error(ex.ToString());
+            log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "afterChangedMap", em.getName());
         } // optional
     }
 
@@ -574,7 +575,7 @@ public class EventInstanceManager
             }
             catch (Exception ex)
             {
-                log.Error(ex.ToString());
+                log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "changedLeader", em.getName());
             }
 
             leaderId = ldr.getId();
@@ -614,7 +615,7 @@ public class EventInstanceManager
             }
             catch (Exception ex)
             {
-                log.Error(ex.ToString());
+                log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "monsterKilled", em.getName());
             }
 
             if (scriptResult > 1)
@@ -625,7 +626,7 @@ public class EventInstanceManager
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex.ToString());
+                    log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "allMonstersDead", em.getName());
                 }
             }
         }
@@ -639,7 +640,7 @@ public class EventInstanceManager
         }
         catch (Exception ex)
         {
-            log.Error(ex.ToString());
+            log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "friendlyKilled", em.getName());
         } //optional
     }
 
@@ -651,7 +652,7 @@ public class EventInstanceManager
         }
         catch (Exception ex)
         {
-            log.Error(ex.ToString());
+            log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "friendlyDamaged", em.getName());
         } // optional
     }
 
@@ -663,7 +664,7 @@ public class EventInstanceManager
         }
         catch (Exception ex)
         {
-            log.Error(ex.ToString());
+            log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "friendlyItemDrop", em.getName());
         } // optional
     }
 
@@ -677,7 +678,7 @@ public class EventInstanceManager
             }
             catch (Exception ex)
             {
-                log.Error(ex.ToString());
+                log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "playerDead", em.getName());
             } // optional
         });
     }
@@ -690,7 +691,7 @@ public class EventInstanceManager
         }
         catch (Exception ex)
         {
-            log.Error(ex.ToString());
+            log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "monsterRevive", em.getName());
         } // optional
     }
 
@@ -702,7 +703,7 @@ public class EventInstanceManager
         }
         catch (Exception ex)
         {
-            log.Error(ex.ToString());
+            log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "playerRevive", em.getName());
         } // optional
 
         return true;
@@ -716,7 +717,7 @@ public class EventInstanceManager
         }
         catch (Exception ex)
         {
-            log.Error(ex.ToString());
+            log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "playerDisconnected", em.getName());
         }
 
         EventRecallCoordinator.getInstance().storeEventInstance(chr.getId(), this);
@@ -745,7 +746,7 @@ public class EventInstanceManager
         }
         catch (Exception ex)
         {
-            log.Error(ex.ToString());
+            log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "monsterValue", em.getName());
         }
     }
 
@@ -791,7 +792,7 @@ public class EventInstanceManager
             }
             catch (Exception ex)
             {
-                log.Error(ex.ToString());
+                log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "dispose", em.getName());
             }
             disposed = true;
 
@@ -876,7 +877,7 @@ public class EventInstanceManager
                     }
                     catch (Exception ex)
                     {
-                        log.Error(ex.ToString());
+                        log.Error(ex, "Invoke {JsFunction} from {ScriptName}", methodName, em.getName());
                     }
                 };
 
@@ -1017,7 +1018,7 @@ public class EventInstanceManager
         }
         catch (Exception ex)
         {
-            log.Error(ex.ToString());
+            log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "leftParty", em.getName());
         }
     }
 
@@ -1029,7 +1030,7 @@ public class EventInstanceManager
         }
         catch (Exception ex)
         {
-            log.Error(ex.ToString());
+            log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "disbandParty", em.getName());
         }
     }
 
@@ -1041,7 +1042,7 @@ public class EventInstanceManager
         }
         catch (Exception ex)
         {
-            log.Error(ex.ToString());
+            log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "clearPQ", em.getName());
         }
     }
 
@@ -1053,7 +1054,7 @@ public class EventInstanceManager
         }
         catch (Exception ex)
         {
-            log.Error(ex.ToString());
+            log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "playerExit", em.getName());
         }
     }
 
@@ -1167,7 +1168,7 @@ public class EventInstanceManager
 
     private List<int> convertToIntegerList(List<object> objects)
     {
-        return objects.Select(x => (int)x).ToList();
+        return objects.Select(x => Convert.ToInt32(x)).ToList();
     }
 
     public void setEventClearStageExp(List<object> gain)
@@ -1389,7 +1390,7 @@ public class EventInstanceManager
             }
             catch (Exception ex)
             {
-                log.Error(ex.ToString());
+                log.Error(ex, "Invoke {JsFunction} from {ScriptName}", "afterSetup", em.getName());
             }
         }
     }
@@ -1782,14 +1783,6 @@ public class EventInstanceManager
         }
 
         return true;
-    }
-
-    public void PassStage(int currentStg, int currentMap, string eventFamily)
-    {
-        setProperty(currentStg + "stageclear", "true");
-        showClearEffect(true);
-
-        linkToNextStage(currentStg, eventFamily, currentMap);  //opens the portal to the next map
     }
 }
 

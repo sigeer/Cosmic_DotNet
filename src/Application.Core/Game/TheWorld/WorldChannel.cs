@@ -118,6 +118,7 @@ public class WorldChannel : IWorldChannel
                 eventSM = new EventScriptManager(this, ["0_EXAMPLE"]);
             }
 
+
             dojoStage = new int[20];
             dojoFinishTime = new long[20];
             dojoTask = new ScheduledFuture[20];

@@ -93,7 +93,7 @@ public class ByteBufOutPacket : OutPacket
 
     public void writeFixedString(string value, int fix = 13)
     {
-        var bytes = Encoding.UTF8.GetBytes(value);
+        var bytes = Encoding.UTF8.GetBytes(value ?? string.Empty);
         var fixedBytes = new byte[fix];
         var actualLength = fix > bytes.Length ? bytes.Length : fix;
         Buffer.BlockCopy(bytes, 0, fixedBytes, 0, actualLength);

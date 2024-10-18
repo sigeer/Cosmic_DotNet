@@ -1,4 +1,6 @@
-﻿namespace Application.Core.Compatible.Extensions
+﻿using Acornima.Ast;
+
+namespace Application.Core.Compatible.Extensions
 {
     public static class JsEngineExtensions
     {
@@ -38,6 +40,12 @@
                 return arr.GetValue(index);
             }
             return null;
+        }
+
+
+        public static bool IsEmpty(this object list)
+        {
+            return list.Size() == 0;
         }
 
 

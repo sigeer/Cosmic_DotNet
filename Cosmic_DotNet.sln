@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{E82E7D8C-3
 	ProjectSection(SolutionItems) = preProject
 		docs\CHANGES.MD = docs\CHANGES.MD
 		docs\CodeMigration.MD = docs\CodeMigration.MD
+		DevLog.MD = DevLog.MD
 		README.MD = README.MD
 	EndProjectSection
 EndProject
