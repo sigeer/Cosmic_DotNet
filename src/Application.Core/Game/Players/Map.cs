@@ -229,7 +229,7 @@ namespace Application.Core.Game.Players
 
             sendPacket(warpPacket);
             MapModel.removePlayer(this);
-            if (Client.getChannelServer().getPlayerStorage().getCharacterById(getId()) != null)
+            if (isLoggedinWorld())
             {
                 setMap(to);
                 setPosition(pos);

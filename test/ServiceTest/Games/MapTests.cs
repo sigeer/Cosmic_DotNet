@@ -56,5 +56,24 @@ namespace ServiceTest.Games
                 Assert.That(MapFactory.loadMapFromWz(mapId, 0, 0, null) is ICPQMap);
             }
         }
+
+        [Test]
+        public void LudiStage2_HitReactorTest()
+        {
+            var mapId = 922010200;
+            var map = MapFactory.loadMapFromWz(mapId, 0, 1, null);
+
+            var allReactors1 = map.getAllReactors().Where(x => x.isAlive()).Count();
+            var reactor = map.getReactorById(2202003);
+
+            Assert.That(reactor != null);
+            reactor!.hitReactor(MockClient);
+            reactor!.hitReactor(MockClient);
+            reactor!.hitReactor(MockClient);
+            reactor!.hitReactor(MockClient);
+
+            var allReactors2 = map.getAllReactors().Where(x => x.isAlive()).Count();
+            Assert.That(allReactors1 - 1, Is.EqualTo(allReactors2));
+        }
     }
 }

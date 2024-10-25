@@ -329,7 +329,8 @@ public class Reactor : AbstractMapObject
                                     if (reactorType < 100)
                                     {
                                         //reactor broken
-                                        if (delay > 0)
+                                        // delay > 0：延迟重生，delay < 0：不重生 delay = 0 无法销毁
+                                        if (delay != 0)
                                         {
                                             MapModel.destroyReactor(getObjectId());
                                         }
@@ -398,6 +399,10 @@ public class Reactor : AbstractMapObject
         }
     }
 
+    /// <summary>
+    /// 只要箱子能重生，就不会从地图上移除，只是看不见
+    /// </summary>
+    /// <returns></returns>
     public bool destroy()
     {
         if (Monitor.TryEnter(reactorLock))
@@ -418,7 +423,7 @@ public class Reactor : AbstractMapObject
                 }
                 else
                 {
-                    return !this.inDelayedRespawn();
+                    return delayedRespawnRun == null;
                 }
             }
             finally
@@ -428,7 +433,7 @@ public class Reactor : AbstractMapObject
         }
 
         MapModel.broadcastMessage(PacketCreator.destroyReactor(this));
-        return false;
+        return this.getDelay() < 0;
     }
 
     private void respawn()
@@ -473,11 +478,6 @@ public class Reactor : AbstractMapObject
         {
             return false;
         }
-    }
-
-    public bool inDelayedRespawn()
-    {
-        return delayedRespawnRun != null;
     }
 
     public Rectangle getArea()

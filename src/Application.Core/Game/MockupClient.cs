@@ -134,7 +134,7 @@ namespace Application.Core.Game
 
         public void closePlayerScriptInteractions()
         {
-            throw new NotImplementedException();
+            return;
         }
 
         public void closeSession()
@@ -149,7 +149,7 @@ namespace Application.Core.Game
 
         public void disconnect(bool shutdown, bool cashshop)
         {
-            throw new NotImplementedException();
+            return;
         }
 
         public void disconnectSession()
