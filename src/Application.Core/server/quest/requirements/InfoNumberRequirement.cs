@@ -18,6 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
+
 namespace server.quest.requirements;
 
 /**
@@ -27,24 +29,12 @@ public class InfoNumberRequirement : AbstractQuestRequirement
 {
 
     private short infoNumber;
-    private int questID;
 
-    public InfoNumberRequirement(Quest quest, Data data) : base(QuestRequirementType.INFO_NUMBER)
+    public InfoNumberRequirement(IRequirementDataAdapter adapter) : base(adapter)
     {
-        questID = quest.getId();
-        processData(data);
+        infoNumber = (short)adapter.GetIntValue();
     }
 
-    public override void processData(Data data)
-    {
-        infoNumber = (short)DataTool.getIntConvert(data, 0);
-    }
-
-
-    public override bool check(IPlayer chr, int? npcid)
-    {
-        return true;
-    }
 
     public short getInfoNumber()
     {

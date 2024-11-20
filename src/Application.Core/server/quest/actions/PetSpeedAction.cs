@@ -20,6 +20,7 @@
 
 
 using Application.Core.Game.Items;
+using Application.Core.Game.QuestDomain.RewardAdapter;
 
 namespace server.quest.actions;
 
@@ -28,15 +29,9 @@ namespace server.quest.actions;
  */
 public class PetSpeedAction : AbstractQuestAction
 {
-
-    public PetSpeedAction(Quest quest, Data data) : base(QuestActionType.PETTAMENESS, quest)
+    public PetSpeedAction(IRewardDataAdapter action, Quest quest) : base(action, quest)
     {
-
-        questID = quest.getId();
     }
-
-
-    public override void processData(Data data) { }
 
     public override void run(IPlayer chr, int? extSelection)
     {

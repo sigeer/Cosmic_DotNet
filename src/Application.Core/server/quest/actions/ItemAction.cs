@@ -21,6 +21,7 @@
  */
 
 
+using Application.Core.Game.QuestDomain.RewardAdapter;
 using client;
 using client.inventory;
 using client.inventory.manipulator;
@@ -38,44 +39,9 @@ public class ItemAction : AbstractQuestAction
 {
     List<ItemData> items = new();
 
-    public ItemAction(Quest quest, Data data) : base(QuestActionType.ITEM, quest)
+    public ItemAction(IRewardItemAdapter action, Quest quest) : base(action, quest)
     {
-
-        processData(data);
-    }
-
-
-    public override void processData(Data data)
-    {
-        foreach (Data iEntry in data.getChildren())
-        {
-            int id = DataTool.getInt(iEntry.getChildByPath("id"));
-            int count = DataTool.getInt(iEntry.getChildByPath("count"), 1);
-            int period = DataTool.getInt(iEntry.getChildByPath("period"), 0);
-
-            int? prop = null;
-            var propData = iEntry.getChildByPath("prop");
-            if (propData != null)
-            {
-                prop = DataTool.getInt(propData);
-            }
-
-            int gender = 2;
-            if (iEntry.getChildByPath("gender") != null)
-            {
-                gender = DataTool.getInt(iEntry.getChildByPath("gender"));
-            }
-
-            int job = -1;
-            if (iEntry.getChildByPath("job") != null)
-            {
-                job = DataTool.getInt(iEntry.getChildByPath("job"));
-            }
-
-            items.Add(new ItemData(int.Parse(iEntry.getName()), id, count, prop, job, gender, period));
-        }
-
-        items.Sort((o1, o2) => o1.map - o2.map);
+        items = action.GetData();
     }
 
     public override void run(IPlayer chr, int? extSelection)
@@ -380,50 +346,4 @@ public class ItemAction : AbstractQuestAction
         return false;
     }
 
-    private class ItemData
-    {
-        public int map, id, count, job, gender, period;
-        private int? prop;
-
-        public ItemData(int map, int id, int count, int? prop, int job, int gender, int period)
-        {
-            this.map = map;
-            this.id = id;
-            this.count = count;
-            this.prop = prop;
-            this.job = job;
-            this.gender = gender;
-            this.period = period;
-        }
-
-        public int getId()
-        {
-            return id;
-        }
-
-        public int getCount()
-        {
-            return count;
-        }
-
-        public int? getProp()
-        {
-            return prop;
-        }
-
-        public int getJob()
-        {
-            return job;
-        }
-
-        public int getGender()
-        {
-            return gender;
-        }
-
-        public int getPeriod()
-        {
-            return period;
-        }
-    }
 }

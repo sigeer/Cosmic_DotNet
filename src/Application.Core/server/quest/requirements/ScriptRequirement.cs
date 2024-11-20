@@ -18,6 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
+
 namespace server.quest.requirements;
 
 /**
@@ -27,19 +29,9 @@ public class ScriptRequirement : AbstractQuestRequirement
 {
     private bool reqScript;
 
-    public ScriptRequirement(Quest quest, Data data) : base(QuestRequirementType.BUFF)
+    public ScriptRequirement(IRequirementDataAdapter adapter) : base(adapter)
     {
-        processData(data);
-    }
-
-    public override void processData(Data data)
-    {
-        reqScript = !string.IsNullOrEmpty(DataTool.getString(data));
-    }
-
-    public override bool check(IPlayer chr, int? npcid)
-    {
-        return true;
+        reqScript = !string.IsNullOrEmpty(adapter.GetStringValue());
     }
 
     public bool get()

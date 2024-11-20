@@ -21,6 +21,7 @@
  */
 
 
+using Application.Core.Game.QuestDomain.RewardAdapter;
 using client;
 using constants.inventory;
 
@@ -33,17 +34,9 @@ public class PetSkillAction : AbstractQuestAction
 {
     int flag;
 
-    public PetSkillAction(Quest quest, Data data) : base(QuestActionType.PETSKILL, quest)
+    public PetSkillAction(IRewardDataAdapter action, Quest quest) : base(action, quest)
     {
-
-        questID = quest.getId();
-        processData(data);
-    }
-
-
-    public override void processData(Data data)
-    {
-        flag = DataTool.getInt("petskill", data);
+        flag = action.GetIntValue();
     }
 
     public override bool check(IPlayer chr, int? extSelection)

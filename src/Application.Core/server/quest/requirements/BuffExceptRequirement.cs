@@ -18,6 +18,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
+using Application.Core.Game.QuestDomain.RewardAdapter;
+
 namespace server.quest.requirements;
 
 /**
@@ -27,15 +30,9 @@ public class BuffExceptRequirement : AbstractQuestRequirement
 {
     private int buffId = -1;
 
-    public BuffExceptRequirement(Quest quest, Data data) : base(QuestRequirementType.BUFF)
+    public BuffExceptRequirement(IRequirementDataAdapter adpter) : base(adpter)
     {
-        processData(data);
-    }
-
-    public override void processData(Data data)
-    {
-        // item buffs are negative
-        buffId = -1 * int.Parse(DataTool.getString(data));
+        buffId = -adpter.GetIntValue();
     }
 
     public override bool check(IPlayer chr, int? npcid)

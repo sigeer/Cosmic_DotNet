@@ -20,6 +20,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Application.Core.Game.QuestDomain.RewardAdapter;
+
 namespace server.quest.actions;
 
 /**
@@ -29,24 +31,13 @@ public class BuffAction : AbstractQuestAction
 {
     int itemEffect;
 
-    public BuffAction(Quest quest, Data data) : base(QuestActionType.BUFF, quest)
+    public BuffAction(IRewardDataAdapter action, Quest quest) : base(action, quest)
     {
-
-        processData(data);
-    }
-
-    public override bool check(IPlayer chr, int? extSelection)
-    {
-        return true;
-    }
-
-    public override void processData(Data data)
-    {
-        itemEffect = DataTool.getInt(data);
+        itemEffect = action.GetIntValue();
     }
 
     public override void run(IPlayer chr, int? extSelection)
     {
-        ItemInformationProvider.getInstance().getItemEffect(itemEffect).applyTo(chr);
+        ItemInformationProvider.getInstance().getItemEffect(itemEffect)?.applyTo(chr);
     }
 }

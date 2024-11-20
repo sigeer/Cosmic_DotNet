@@ -22,6 +22,7 @@
 
 
 using Application.Core.Game.Packets;
+using Application.Core.Game.QuestDomain.RewardAdapter;
 using client;
 
 namespace server.quest.actions;
@@ -33,16 +34,9 @@ public class NextQuestAction : AbstractQuestAction
 {
     int nextQuest;
 
-    public NextQuestAction(Quest quest, Data data) : base(QuestActionType.NEXTQUEST, quest)
+    public NextQuestAction(IRewardDataAdapter action, Quest quest) : base(action, quest)
     {
-
-        processData(data);
-    }
-
-
-    public override void processData(Data data)
-    {
-        nextQuest = DataTool.getInt(data);
+        nextQuest = action.GetIntValue();
     }
 
     public override void run(IPlayer chr, int? extSelection)

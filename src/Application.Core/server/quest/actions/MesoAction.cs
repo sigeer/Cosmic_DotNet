@@ -20,6 +20,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Application.Core.Game.QuestDomain.RewardAdapter;
+
 namespace server.quest.actions;
 
 /**
@@ -29,17 +31,9 @@ public class MesoAction : AbstractQuestAction
 {
     int mesos;
 
-    public MesoAction(Quest quest, Data data) : base(QuestActionType.MESO, quest)
+    public MesoAction(IRewardDataAdapter action, Quest quest) : base(action, quest)
     {
-
-        questID = quest.getId();
-        processData(data);
-    }
-
-
-    public override void processData(Data data)
-    {
-        mesos = DataTool.getInt(data);
+        mesos = action.GetIntValue();
     }
 
     public override void run(IPlayer chr, int? extSelection)

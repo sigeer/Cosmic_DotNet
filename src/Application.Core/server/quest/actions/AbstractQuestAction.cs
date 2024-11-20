@@ -17,6 +17,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Application.Core.Game.QuestDomain.RewardAdapter;
+
 namespace server.quest.actions;
 
 
@@ -28,27 +30,26 @@ namespace server.quest.actions;
 public abstract class AbstractQuestAction
 {
     protected ILogger log = LogFactory.GetLogger("Quest/Action");
-    private QuestActionType type;
+    protected IRewardAdapter _adapter;
     protected int questID;
 
-    public AbstractQuestAction(QuestActionType action, Quest quest)
+    public AbstractQuestAction(IRewardAdapter adapter, Quest quest)
     {
-        this.type = action;
+        this._adapter = adapter;
         this.questID = quest.getId();
     }
 
     public abstract void run(IPlayer chr, int? extSelection);
-    public abstract void processData(Data data);
 
     public virtual bool check(IPlayer chr, int? extSelection)
     {
         return true;
     }
 
-    public QuestActionType getType()
-    {
-        return type;
-    }
+    //public QuestActionType getType()
+    //{
+    //    return type;
+    //}
 
     public static List<int> getJobBy5ByteEncoding(int encoded)
     {

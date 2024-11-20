@@ -18,6 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Application.Core.Game.QuestDomain.RewardAdapter;
+
 namespace server.quest.actions;
 
 /**
@@ -27,17 +29,9 @@ public class PetTamenessAction : AbstractQuestAction
 {
     int tameness;
 
-    public PetTamenessAction(Quest quest, Data data) : base(QuestActionType.PETTAMENESS, quest)
+    public PetTamenessAction(IRewardDataAdapter action, Quest quest) : base(action, quest)
     {
-
-        questID = quest.getId();
-        processData(data);
-    }
-
-
-    public override void processData(Data data)
-    {
-        tameness = DataTool.getInt(data);
+        tameness = action.GetIntValue();
     }
 
     public override void run(IPlayer chr, int? extSelection)

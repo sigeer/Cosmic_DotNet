@@ -20,6 +20,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
+
 namespace server.quest.requirements;
 
 /**
@@ -29,17 +31,10 @@ public class MonsterBookCountRequirement : AbstractQuestRequirement
 {
     private int reqCards;
 
-
-    public MonsterBookCountRequirement(Quest quest, Data data) : base(QuestRequirementType.MONSTER_BOOK)
+    public MonsterBookCountRequirement(IRequirementDataAdapter adapter) : base(adapter)
     {
-        processData(data);
+        reqCards = adapter.GetIntValue();
     }
-
-    public override void processData(Data data)
-    {
-        reqCards = DataTool.getInt(data);
-    }
-
 
     public override bool check(IPlayer chr, int? npcid)
     {

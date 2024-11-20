@@ -22,6 +22,9 @@
 
 
 using Application.Core.Game.Packets;
+using Application.Core.Game.QuestDomain;
+using Application.Core.Game.QuestDomain.RequirementAdapter;
+using Application.Core.Game.QuestDomain.RewardAdapter;
 using client;
 using server.quest.actions;
 using server.quest.requirements;
@@ -204,7 +207,87 @@ public class Quest
             }
         }
     }
+    public Quest(QuestEntity questInfo, List<QuestRequirementEntity> reqs, List<QuestRewardEntity> rewards)
+    {
+        var checkData = questCheck.getChildByPath(id.ToString());
+        if (checkData == null)
+        {
+            LogFactory.ResLogger.Error("QuestInfo: Id = {QuestId} not found in Check.img", id);
+            return;
+        }
+        id = (short)questInfo.Id;
+        name = questInfo.Name;
+        parent = questInfo.ParentName;
+        timeLimit = questInfo.TimeLimit;
+        timeLimit2 = questInfo.TimeLimit2;
+        autoStart = questInfo.AutoStart;
+        autoPreComplete = questInfo.AutoPreComplete;
+        autoComplete = questInfo.AutoComplete;
+        medals[id] = questInfo.MedalId;
 
+
+        foreach (var startReq in reqs.Where(x => x.Step == 0))
+        {
+            QuestRequirementType type = QuestRequirementTypeUtils.getByWZName(startReq.RequirementType);
+            switch (type)
+            {
+                case QuestRequirementType.INTERVAL:
+                    repeatable = true;
+                    break;
+                case QuestRequirementType.MOB:
+                    if (int.TryParse(startReq.Value, out var d))
+                        relevantMobs.Add(d);
+                    break;
+            }
+
+            var req = GetRequirement(type, startReq);
+            if (req == null)
+            {
+                continue;
+            }
+
+            startReqs.AddOrUpdate(type, req);
+        }
+
+        foreach (var completeReq in reqs.Where(x => x.Step == 1))
+        {
+            QuestRequirementType type = QuestRequirementTypeUtils.getByWZName(completeReq.RequirementType);
+
+            var req = GetRequirement(type, completeReq);
+            if (req == null)
+            {
+                continue;
+            }
+
+            if (type.Equals(QuestRequirementType.MOB) && int.TryParse(completeReq.Value, out var d))
+            {
+                relevantMobs.Add(d);
+            }
+            completeReqs.AddOrUpdate(type, req);
+        }
+
+        foreach (var startAct in rewards.Where(x => x.Step == 0))
+        {
+            QuestActionType questActionType = QuestActionTypeUtils.getByWZName(startAct.RewardType);
+            var act = GetReward(questActionType, startAct);
+
+            if (act != null)
+            {
+                startActs.AddOrUpdate(questActionType, act);
+            }
+        }
+
+        foreach (var completeAct in rewards.Where(x => x.Step == 1))
+        {
+            QuestActionType questActionType = QuestActionTypeUtils.getByWZName(completeAct.RewardType);
+            var act = GetReward(questActionType, completeAct);
+
+            if (act != null)
+            {
+                completeActs.AddOrUpdate(questActionType, act);
+            }
+        }
+    }
     public bool isAutoComplete()
     {
         return autoPreComplete || autoComplete;
@@ -215,12 +298,15 @@ public class Quest
         return autoStart;
     }
 
+
     public static Quest getInstance(int id)
     {
         var ret = quests.GetValueOrDefault(id);
         if (ret == null)
         {
-            ret = new Quest(null, (short)id);
+            ret = QuestFromDB.LoadQuestFromDB(id);
+            if (ret == null)
+                ret = new Quest(null, (short)id);
             quests.AddOrUpdate(id, ret);
         }
         return ret;
@@ -284,7 +370,7 @@ public class Quest
             return false;
         }
 
-        foreach (AbstractQuestRequirement r in startReqs.Values)
+        foreach (var r in startReqs.Values)
         {
             if (!r.check(chr, npcid))
             {
@@ -303,7 +389,7 @@ public class Quest
             return false;
         }
 
-        foreach (AbstractQuestRequirement r in completeReqs.Values)
+        foreach (var r in completeReqs.Values)
         {
             if (!r.check(chr, npcid))
             {
@@ -319,14 +405,14 @@ public class Quest
         if (autoStart || canStart(chr, npc))
         {
             var acts = startActs.Values;
-            foreach (AbstractQuestAction a in acts)
+            foreach (var a in acts)
             {
                 if (!a.check(chr, null))
                 { // would null be good ?
                     return;
                 }
             }
-            foreach (AbstractQuestAction a in acts)
+            foreach (var a in acts)
             {
                 a.run(chr, null);
             }
@@ -344,7 +430,7 @@ public class Quest
         if (autoPreComplete || canComplete(chr, npc))
         {
             var acts = completeActs.Values;
-            foreach (AbstractQuestAction a in acts)
+            foreach (var a in acts)
             {
                 if (!a.check(chr, selection))
                 {
@@ -352,7 +438,7 @@ public class Quest
                 }
             }
             forceComplete(chr, npc);
-            foreach (AbstractQuestAction a in acts)
+            foreach (var a in acts)
             {
                 a.run(chr, selection);
             }
@@ -522,70 +608,70 @@ public class Quest
         quests.Clear();
     }
 
-    private AbstractQuestRequirement? getRequirement(QuestRequirementType type, Data data)
+    private AbstractQuestRequirement? GetRequirement(QuestRequirementType type, QuestRequirementEntity data)
     {
         AbstractQuestRequirement? ret = null;
         switch (type)
         {
             case QuestRequirementType.END_DATE:
-                ret = new EndDateRequirement(this, data);
+                ret = new EndDateRequirement(new EntityRequirementDataAdapter(data));
                 break;
             case QuestRequirementType.JOB:
-                ret = new JobRequirement(this, data);
+                ret = new JobRequirement(new EntityRequirementJobAdapter(data));
                 break;
             case QuestRequirementType.QUEST:
-                ret = new QuestRequirement(this, data);
+                ret = new QuestRequirement(new EntityRequirementQuestAdapter(data));
                 break;
             case QuestRequirementType.FIELD_ENTER:
-                ret = new FieldEnterRequirement(this, data);
+                ret = new FieldEnterRequirement(new EntityRequirementFieldEnterAdapter(data));
                 break;
             case QuestRequirementType.INFO_NUMBER:
-                ret = new InfoNumberRequirement(this, data);
+                ret = new InfoNumberRequirement(new EntityRequirementDataAdapter(data));
                 break;
             case QuestRequirementType.INFO_EX:
-                ret = new InfoExRequirement(this, data);
+                ret = new InfoExRequirement(new EntityRequirementInfoExAdapter(data));
                 break;
             case QuestRequirementType.INTERVAL:
-                ret = new IntervalRequirement(this, data);
+                ret = new IntervalRequirement(getId(), new EntityRequirementDataAdapter(data));
                 break;
             case QuestRequirementType.COMPLETED_QUEST:
-                ret = new CompletedQuestRequirement(this, data);
+                ret = new CompletedQuestRequirement(new EntityRequirementDataAdapter(data));
                 break;
             case QuestRequirementType.ITEM:
-                ret = new ItemRequirement(this, data);
+                ret = new ItemRequirement(new EntityRequirementItemAdapter(data));
                 break;
             case QuestRequirementType.MAX_LEVEL:
-                ret = new MaxLevelRequirement(this, data);
+                ret = new MaxLevelRequirement(new EntityRequirementDataAdapter(data));
                 break;
             case QuestRequirementType.MESO:
-                ret = new MesoRequirement(this, data);
+                ret = new MesoRequirement(new EntityRequirementDataAdapter(data));
                 break;
             case QuestRequirementType.MIN_LEVEL:
-                ret = new MinLevelRequirement(this, data);
+                ret = new MinLevelRequirement(new EntityRequirementDataAdapter(data));
                 break;
             case QuestRequirementType.MIN_PET_TAMENESS:
-                ret = new MinTamenessRequirement(this, data);
+                ret = new MinTamenessRequirement(new EntityRequirementDataAdapter(data));
                 break;
             case QuestRequirementType.MOB:
-                ret = new MobRequirement(this, data);
+                ret = new MobRequirement(getId(), new EntityRequirementMobAdapter(data));
                 break;
             case QuestRequirementType.MONSTER_BOOK:
-                ret = new MonsterBookCountRequirement(this, data);
+                ret = new MonsterBookCountRequirement(new EntityRequirementDataAdapter(data));
                 break;
             case QuestRequirementType.NPC:
-                ret = new NpcRequirement(this, data);
+                ret = new NpcRequirement(new EntityRequirementDataAdapter(data));
                 break;
             case QuestRequirementType.PET:
-                ret = new PetRequirement(this, data);
+                ret = new PetRequirement(new EntityRequirementPetAdapter(data));
                 break;
             case QuestRequirementType.BUFF:
-                ret = new BuffRequirement(this, data);
+                ret = new BuffRequirement(new EntityRequirementDataAdapter(data));
                 break;
             case QuestRequirementType.EXCEPT_BUFF:
-                ret = new BuffExceptRequirement(this, data);
+                ret = new BuffExceptRequirement(new EntityRequirementDataAdapter(data));
                 break;
             case QuestRequirementType.SCRIPT:
-                ret = new ScriptRequirement(this, data);
+                ret = new ScriptRequirement(new EntityRequirementDataAdapter(data));
                 break;
             case QuestRequirementType.NORMAL_AUTO_START:
             case QuestRequirementType.START:
@@ -598,46 +684,170 @@ public class Quest
         return ret;
     }
 
+    private AbstractQuestRequirement? getRequirement(QuestRequirementType type, Data data)
+    {
+        AbstractQuestRequirement? ret = null;
+        switch (type)
+        {
+            case QuestRequirementType.END_DATE:
+                ret = new EndDateRequirement(new WzRequirementDataAdapter(data));
+                break;
+            case QuestRequirementType.JOB:
+                ret = new JobRequirement(new WzRequirementJobAdapter(data));
+                break;
+            case QuestRequirementType.QUEST:
+                ret = new QuestRequirement(new WzRequirementQuestAdapter(data));
+                break;
+            case QuestRequirementType.FIELD_ENTER:
+                ret = new FieldEnterRequirement(new WzRequirementFieldEnterAdapter(data));
+                break;
+            case QuestRequirementType.INFO_NUMBER:
+                ret = new InfoNumberRequirement(new WzRequirementDataAdapter(data));
+                break;
+            case QuestRequirementType.INFO_EX:
+                ret = new InfoExRequirement(new WzRequirementInfoExAdapter(data));
+                break;
+            case QuestRequirementType.INTERVAL:
+                ret = new IntervalRequirement(getId(), new WzRequirementDataAdapter(data));
+                break;
+            case QuestRequirementType.COMPLETED_QUEST:
+                ret = new CompletedQuestRequirement(new WzRequirementDataAdapter(data));
+                break;
+            case QuestRequirementType.ITEM:
+                ret = new ItemRequirement(new WzRequirementItemAdapter(data));
+                break;
+            case QuestRequirementType.MAX_LEVEL:
+                ret = new MaxLevelRequirement(new WzRequirementDataAdapter(data));
+                break;
+            case QuestRequirementType.MESO:
+                ret = new MesoRequirement(new WzRequirementDataAdapter(data));
+                break;
+            case QuestRequirementType.MIN_LEVEL:
+                ret = new MinLevelRequirement(new WzRequirementDataAdapter(data));
+                break;
+            case QuestRequirementType.MIN_PET_TAMENESS:
+                ret = new MinTamenessRequirement(new WzRequirementDataAdapter(data));
+                break;
+            case QuestRequirementType.MOB:
+                ret = new MobRequirement(getId(), new WzRequirementMobAdapter(data));
+                break;
+            case QuestRequirementType.MONSTER_BOOK:
+                ret = new MonsterBookCountRequirement(new WzRequirementDataAdapter(data));
+                break;
+            case QuestRequirementType.NPC:
+                ret = new NpcRequirement(new WzRequirementDataAdapter(data));
+                break;
+            case QuestRequirementType.PET:
+                ret = new PetRequirement(new WzRequirementPetAdapter(data));
+                break;
+            case QuestRequirementType.BUFF:
+                ret = new BuffRequirement(new WzRequirementDataAdapter(data));
+                break;
+            case QuestRequirementType.EXCEPT_BUFF:
+                ret = new BuffExceptRequirement(new WzRequirementDataAdapter(data));
+                break;
+            case QuestRequirementType.SCRIPT:
+                ret = new ScriptRequirement(new WzRequirementDataAdapter(data));
+                break;
+            case QuestRequirementType.NORMAL_AUTO_START:
+            case QuestRequirementType.START:
+            case QuestRequirementType.END:
+                break;
+            default:
+                //FilePrinter.printError(FilePrinter.EXCEPTION_CAUGHT, "Unhandled Requirement Type: " + type.ToString() + " QuestID: " + this.getId());
+                break;
+        }
+        return ret;
+    }
+
+    private AbstractQuestAction? GetReward(QuestActionType type, QuestRewardEntity data)
+    {
+        AbstractQuestAction? ret = null;
+        switch (type)
+        {
+            case QuestActionType.BUFF:
+                ret = new BuffAction(new EntityRewardDataAdapter(data), this);
+                break;
+            case QuestActionType.EXP:
+                ret = new ExpAction(new EntityRewardDataAdapter(data), this);
+                break;
+            case QuestActionType.FAME:
+                ret = new FameAction(new EntityRewardDataAdapter(data), this);
+                break;
+            case QuestActionType.ITEM:
+                ret = new ItemAction(new EntityRewardItemAdapter(data), this);
+                break;
+            case QuestActionType.MESO:
+                ret = new MesoAction(new EntityRewardDataAdapter(data), this);
+                break;
+            case QuestActionType.NEXTQUEST:
+                ret = new NextQuestAction(new EntityRewardDataAdapter(data), this);
+                break;
+            case QuestActionType.PETSKILL:
+                ret = new PetSkillAction(new EntityRewardDataAdapter(data), this);
+                break;
+            case QuestActionType.QUEST:
+                ret = new QuestAction(new EntityRewardQuestAdapter(data), this);
+                break;
+            case QuestActionType.SKILL:
+                ret = new SkillAction(new EntityRewardSkillAdapter(data), this);
+                break;
+            case QuestActionType.PETTAMENESS:
+                ret = new PetTamenessAction(new EntityRewardDataAdapter(data), this);
+                break;
+            case QuestActionType.PETSPEED:
+                ret = new PetSpeedAction(new EntityRewardDataAdapter(data), this);
+                break;
+            case QuestActionType.INFO:
+                ret = new InfoAction(new EntityRewardDataAdapter(data), this);
+                break;
+            default:
+                //FilePrinter.printError(FilePrinter.EXCEPTION_CAUGHT, "Unhandled Action Type: " + type.ToString() + " QuestID: " + this.getId());
+                break;
+        }
+        return ret;
+    }
+
     private AbstractQuestAction? getAction(QuestActionType type, Data data)
     {
         AbstractQuestAction? ret = null;
         switch (type)
         {
             case QuestActionType.BUFF:
-                ret = new BuffAction(this, data);
+                ret = new BuffAction(new WzRewardDataAdapter(data), this);
                 break;
             case QuestActionType.EXP:
-                ret = new ExpAction(this, data);
+                ret = new ExpAction(new WzRewardDataAdapter(data), this);
                 break;
             case QuestActionType.FAME:
-                ret = new FameAction(this, data);
+                ret = new FameAction(new WzRewardDataAdapter(data), this);
                 break;
             case QuestActionType.ITEM:
-                ret = new ItemAction(this, data);
+                ret = new ItemAction(new WzRewardItemAdapter(data), this);
                 break;
             case QuestActionType.MESO:
-                ret = new MesoAction(this, data);
+                ret = new MesoAction(new WzRewardDataAdapter(data), this);
                 break;
             case QuestActionType.NEXTQUEST:
-                ret = new NextQuestAction(this, data);
+                ret = new NextQuestAction(new WzRewardDataAdapter(data), this);
                 break;
             case QuestActionType.PETSKILL:
-                ret = new PetSkillAction(this, data);
+                ret = new PetSkillAction(new WzPetSkillRewardAdapter(data), this);
                 break;
             case QuestActionType.QUEST:
-                ret = new QuestAction(this, data);
+                ret = new QuestAction(new WzRewardQuestAdapter(data), this);
                 break;
             case QuestActionType.SKILL:
-                ret = new SkillAction(this, data);
+                ret = new SkillAction(new WzRewardSkillAdapter(data), this);
                 break;
             case QuestActionType.PETTAMENESS:
-                ret = new PetTamenessAction(this, data);
+                ret = new PetTamenessAction(new WzRewardDataAdapter(data), this);
                 break;
             case QuestActionType.PETSPEED:
-                ret = new PetSpeedAction(this, data);
+                ret = new PetSpeedAction(new WzRewardDataAdapter(data), this);
                 break;
             case QuestActionType.INFO:
-                ret = new InfoAction(this, data);
+                ret = new InfoAction(new WzRewardDataAdapter(data), this);
                 break;
             default:
                 //FilePrinter.printError(FilePrinter.EXCEPTION_CAUGHT, "Unhandled Action Type: " + type.ToString() + " QuestID: " + this.getId());
@@ -669,14 +879,10 @@ public class Quest
     {
         Dictionary<QuestRequirementType, AbstractQuestRequirement> reqs = !checkEnd ? startReqs : completeReqs;
         var mqr = reqs.GetValueOrDefault(QuestRequirementType.NPC);
-        if (mqr != null)
-        {
-            return ((NpcRequirement)mqr).get();
-        }
-        else
-        {
-            return -1;
-        }
+
+        if (mqr is NpcRequirement n)
+            return n.get();
+        return -1;
     }
 
     public bool hasScriptRequirement(bool checkEnd)
@@ -684,14 +890,7 @@ public class Quest
         Dictionary<QuestRequirementType, AbstractQuestRequirement> reqs = !checkEnd ? startReqs : completeReqs;
         var mqr = reqs.GetValueOrDefault(QuestRequirementType.SCRIPT);
 
-        if (mqr != null)
-        {
-            return ((ScriptRequirement)mqr).get();
-        }
-        else
-        {
-            return false;
-        }
+        return mqr is ScriptRequirement s && s.get();
     }
 
     public bool hasNextQuestAction()
@@ -764,5 +963,29 @@ public class Quest
 
         Quest.quests = loadedQuests;
         Quest.infoNumberQuests = loadedInfoNumberQuests;
+
+        foreach (var q in QuestFromDB.LoadQuestFromDB())
+        {
+            var questId = q.getId();
+            if (quests.ContainsKey(questId))
+                throw new Exception($"QuestId 重复： {questId}");
+
+            quests[questId] = q;
+
+            int infoNumber;
+
+            infoNumber = q.getInfoNumber(Status.STARTED);
+            if (infoNumber > 0)
+            {
+                infoNumberQuests.AddOrUpdate(infoNumber, questId);
+            }
+
+            infoNumber = q.getInfoNumber(Status.COMPLETED);
+            if (infoNumber > 0)
+            {
+                infoNumberQuests.AddOrUpdate(infoNumber, questId);
+            }
+
+        }
     }
 }

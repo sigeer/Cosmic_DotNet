@@ -20,6 +20,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
+
 namespace server.quest.requirements;
 
 
@@ -31,29 +33,10 @@ namespace server.quest.requirements;
 public class InfoExRequirement : AbstractQuestRequirement
 {
     private List<string> infoExpected = new();
-    private int questID;
 
-
-    public InfoExRequirement(Quest quest, Data data) : base(QuestRequirementType.INFO_EX)
+    public InfoExRequirement(IRequirementInfoExAdapter adapter) : base(adapter)
     {
-        questID = quest.getId();
-        processData(data);
-    }
-
-    public override void processData(Data data)
-    {
-        // Because we have to...
-        foreach (Data infoEx in data.getChildren())
-        {
-            var value = infoEx.getChildByPath("value");
-            infoExpected.Add(DataTool.getString(value) ?? "");
-        }
-    }
-
-
-    public override bool check(IPlayer chr, int? npcid)
-    {
-        return true;
+        infoExpected = adapter.GetData();
     }
 
     public List<string> getInfo()

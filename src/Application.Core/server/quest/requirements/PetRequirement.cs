@@ -20,6 +20,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
+
 namespace server.quest.requirements;
 
 
@@ -32,21 +34,10 @@ public class PetRequirement : AbstractQuestRequirement
 {
     List<int> petIDs = new();
 
-
-    public PetRequirement(Quest quest, Data data) : base(QuestRequirementType.PET)
+    public PetRequirement(IRequirementPetAdapter adapter) : base(adapter)
     {
-        processData(data);
+        petIDs = adapter.GetData();
     }
-
-
-    public override void processData(Data data)
-    {
-        foreach (Data petData in data.getChildren())
-        {
-            petIDs.Add(DataTool.getInt(petData.getChildByPath("id")));
-        }
-    }
-
 
     public override bool check(IPlayer chr, int? npcid)
     {

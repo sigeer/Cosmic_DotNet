@@ -18,6 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Application.Core.Game.QuestDomain.RewardAdapter;
+
 namespace server.quest.actions;
 
 /**
@@ -28,18 +30,10 @@ public class InfoAction : AbstractQuestAction
 
     private string info;
 
-    public InfoAction(Quest quest, Data data) : base(QuestActionType.INFO, quest)
+    public InfoAction(IRewardDataAdapter action, Quest quest) : base(action, quest)
     {
-
-        questID = quest.getId();
-        processData(data);
+        info = action.GetStringValue();
     }
-
-    public override void processData(Data data)
-    {
-        info = DataTool.getString(data) ?? "";
-    }
-
 
     public override void run(IPlayer chr, int? extSelection)
     {

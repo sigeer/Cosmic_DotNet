@@ -20,6 +20,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
+
 namespace server.quest.requirements;
 
 
@@ -31,20 +33,10 @@ public class EndDateRequirement : AbstractQuestRequirement
 {
     private string timeStr;
 
-
-    public EndDateRequirement(Quest quest, Data data) : base(QuestRequirementType.END_DATE)
+    public EndDateRequirement(IRequirementDataAdapter adapter) : base(adapter)
     {
-        processData(data);
+        timeStr = adapter.GetStringValue();
     }
-
-    /**
-     * @param data
-     */
-    public override void processData(Data data)
-    {
-        timeStr = DataTool.getString(data);
-    }
-
 
     public override bool check(IPlayer chr, int? npcid)
     {

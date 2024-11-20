@@ -21,6 +21,7 @@
  */
 
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
 using client;
 
 namespace server.quest.requirements;
@@ -37,24 +38,12 @@ public class MobRequirement : AbstractQuestRequirement
     Dictionary<int, int> mobs = new();
     private int questID;
 
-    public MobRequirement(Quest quest, Data data) : base(QuestRequirementType.MOB)
+    public MobRequirement(int questId, IRequirementMobAdapter adapter) : base(adapter)
     {
-        questID = quest.getId();
-        processData(data);
+        questID = questId;
+        mobs = adapter.GetData();
     }
 
-    /**
-     * @param data
-     */
-    public override void processData(Data data)
-    {
-        foreach (Data questEntry in data.getChildren())
-        {
-            int mobID = DataTool.getInt(questEntry.getChildByPath("id"));
-            int countReq = DataTool.getInt(questEntry.getChildByPath("count"));
-            mobs.AddOrUpdate(mobID, countReq);
-        }
-    }
 
 
     public override bool check(IPlayer chr, int? npcid)

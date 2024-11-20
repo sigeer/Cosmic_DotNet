@@ -20,6 +20,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Application.Core.Game.QuestDomain.RewardAdapter;
+
 namespace server.quest.actions;
 
 /**
@@ -29,16 +31,9 @@ public class ExpAction : AbstractQuestAction
 {
     int exp;
 
-    public ExpAction(Quest quest, Data data) : base(QuestActionType.EXP, quest)
+    public ExpAction(IRewardDataAdapter adapter, Quest quest) : base(adapter, quest)
     {
-
-        processData(data);
-    }
-
-
-    public override void processData(Data data)
-    {
-        exp = DataTool.getInt(data);
+        exp = adapter.GetIntValue();
     }
 
     public override void run(IPlayer chr, int? extSelection)

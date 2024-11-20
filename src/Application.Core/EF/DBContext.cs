@@ -1,5 +1,6 @@
 using Application.Core.EF.Entities;
 using Application.Core.EF.Entities.Gachapons;
+using Application.Core.Game.QuestDomain;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.EF;
@@ -16,6 +17,9 @@ public partial class DBContext : DbContext
     }
 
     #region Entities
+    public DbSet<QuestEntity> Quests { get; set; }
+    public DbSet<QuestRequirementEntity> QuestRequirements { get; set; }
+    public DbSet<QuestRewardEntity> QuestRewards { get; set; }
     public DbSet<GachaponPoolLevelChance> GachaponPoolLevelChances { get; set; }
     public DbSet<GachaponPool> GachaponPools { get; set; }
     public DbSet<GachaponPoolItem> GachaponPoolItems { get; set; }
@@ -128,11 +132,8 @@ public partial class DBContext : DbContext
 
     public virtual DbSet<Plife> Plives { get; set; }
 
-    public virtual DbSet<Questaction> Questactions { get; set; }
 
     public virtual DbSet<Questprogress> Questprogresses { get; set; }
-
-    public virtual DbSet<Questrequirement> Questrequirements { get; set; }
 
     public virtual DbSet<QuestStatusEntity> Queststatuses { get; set; }
 
@@ -2167,26 +2168,6 @@ public partial class DBContext : DbContext
                 .HasColumnName("y");
         });
 
-        modelBuilder.Entity<Questaction>(entity =>
-        {
-            entity.HasKey(e => e.Questactionid).HasName("PRIMARY");
-
-            entity.ToTable("questactions");
-
-            entity.Property(e => e.Questactionid)
-                .HasColumnType("int(10) unsigned")
-                .HasColumnName("questactionid");
-            entity.Property(e => e.Data)
-                .HasColumnType("blob")
-                .HasColumnName("data");
-            entity.Property(e => e.Questid)
-                .HasColumnType("int(11)")
-                .HasColumnName("questid");
-            entity.Property(e => e.Status)
-                .HasColumnType("int(11)")
-                .HasColumnName("status");
-        });
-
         modelBuilder.Entity<Questprogress>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
@@ -2209,26 +2190,6 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Queststatusid)
                 .HasColumnType("int(10) unsigned")
                 .HasColumnName("queststatusid");
-        });
-
-        modelBuilder.Entity<Questrequirement>(entity =>
-        {
-            entity.HasKey(e => e.Questrequirementid).HasName("PRIMARY");
-
-            entity.ToTable("questrequirements");
-
-            entity.Property(e => e.Questrequirementid)
-                .HasColumnType("int(10) unsigned")
-                .HasColumnName("questrequirementid");
-            entity.Property(e => e.Data)
-                .HasColumnType("blob")
-                .HasColumnName("data");
-            entity.Property(e => e.Questid)
-                .HasColumnType("int(11)")
-                .HasColumnName("questid");
-            entity.Property(e => e.Status)
-                .HasColumnType("int(11)")
-                .HasColumnName("status");
         });
 
         modelBuilder.Entity<QuestStatusEntity>(entity =>
@@ -2693,7 +2654,38 @@ public partial class DBContext : DbContext
             entity.HasKey(e => e.Id).HasName("PRIMARY");
         });
 
+        BuildQuest(modelBuilder);
         OnModelCreatingPartial(modelBuilder);
+    }
+
+    private void BuildQuest(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<QuestEntity>(entity =>
+        {
+            entity.ToTable("quest");
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Name).HasColumnType("varchar(50)").IsRequired().HasDefaultValueSql("''");
+            entity.Property(e => e.ParentName).HasColumnType("varchar(50)").IsRequired().HasDefaultValueSql("''");
+            entity.Property(e => e.Type).HasColumnType("varchar(50)");
+        });
+
+        modelBuilder.Entity<QuestRequirementEntity>(entity =>
+        {
+            entity.ToTable("quest_requirement");
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.Property(e => e.RequirementType).HasColumnType("varchar(20)").IsRequired().HasDefaultValueSql("''");
+            entity.HasIndex(e => e.QuestId, "idx_qid");
+        });
+
+        modelBuilder.Entity<QuestRewardEntity>(entity =>
+        {
+            entity.ToTable("quest_reward");
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.Property(e => e.RewardType).HasColumnType("varchar(20)").IsRequired().HasDefaultValueSql("''");
+            entity.HasIndex(e => e.QuestId, "idx_qid");
+        });
+
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

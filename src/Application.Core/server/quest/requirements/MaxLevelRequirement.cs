@@ -20,6 +20,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
+
 namespace server.quest.requirements;
 
 /**
@@ -29,18 +31,9 @@ public class MaxLevelRequirement : AbstractQuestRequirement
 {
     private int maxLevel;
 
-
-    public MaxLevelRequirement(Quest quest, Data data) : base(QuestRequirementType.MAX_LEVEL)
+    public MaxLevelRequirement(IRequirementDataAdapter adapter) : base(adapter)
     {
-        processData(data);
-    }
-
-    /**
-     * @param data
-     */
-    public override void processData(Data data)
-    {
-        maxLevel = DataTool.getInt(data);
+        maxLevel = adapter.GetIntValue();
     }
 
 

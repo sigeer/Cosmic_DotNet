@@ -21,6 +21,7 @@
  */
 
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
 using client.inventory;
 using constants.inventory;
 
@@ -36,23 +37,10 @@ public class ItemRequirement : AbstractQuestRequirement
 {
     Dictionary<int, int> items = new();
 
-
-    public ItemRequirement(Quest quest, Data data) : base(QuestRequirementType.ITEM)
+    public ItemRequirement(IRequirementItemAdapter adapter) : base(adapter)
     {
-        processData(data);
+        items = adapter.GetData();
     }
-
-    public override void processData(Data data)
-    {
-        foreach (Data itemEntry in data.getChildren())
-        {
-            int itemId = DataTool.getInt(itemEntry.getChildByPath("id"));
-            int count = DataTool.getInt(itemEntry.getChildByPath("count"), 0);
-
-            items.AddOrUpdate(itemId, count);
-        }
-    }
-
 
     public override bool check(IPlayer chr, int? npcid)
     {

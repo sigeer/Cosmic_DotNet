@@ -20,6 +20,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
+
 namespace server.quest.requirements;
 
 /**
@@ -29,16 +31,9 @@ public class MinLevelRequirement : AbstractQuestRequirement
 {
     private int minLevel;
 
-
-    public MinLevelRequirement(Quest quest, Data data) : base(QuestRequirementType.MIN_LEVEL)
+    public MinLevelRequirement(IRequirementDataAdapter adapter) : base(adapter)
     {
-        processData(data);
-    }
-
-
-    public override void processData(Data data)
-    {
-        minLevel = DataTool.getInt(data);
+        minLevel = adapter.GetIntValue();
     }
 
 

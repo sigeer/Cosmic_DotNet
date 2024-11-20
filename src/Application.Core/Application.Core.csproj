@@ -50,5 +50,10 @@
 		<PackageReference Include="DotNetty.Handlers" Version="0.7.6" />
 		<PackageReference Include="DotNetty.Transport" Version="0.7.6" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Game\QuestDomain\Requirements\" />
+	  <Folder Include="Game\QuestDomain\Rewards\" />
+	</ItemGroup>
 	
 </Project>

@@ -20,6 +20,9 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Application.Core.Game.QuestDomain;
+using Application.Core.Game.QuestDomain.RequirementAdapter;
+
 namespace server.quest.requirements;
 
 /**
@@ -29,11 +32,10 @@ namespace server.quest.requirements;
  */
 public abstract class AbstractQuestRequirement
 {
-    private QuestRequirementType type;
-
-    public AbstractQuestRequirement(QuestRequirementType type)
+    protected IRequirementAdapter _adapter;
+    public AbstractQuestRequirement(IRequirementAdapter adapter)
     {
-        this.type = type;
+        this._adapter = adapter;
     }
 
     /**
@@ -43,17 +45,8 @@ public abstract class AbstractQuestRequirement
      * @param npcid The NPC ID it was called from.
      * @return bool    If the check was passed or not.
      */
-    public abstract bool check(IPlayer chr, int? npcid);
-
-    /**
-     * Processes the data and stores it in the class for future use.
-     *
-     * @param data The data to process.
-     */
-    public abstract void processData(Data data);
-
-    public QuestRequirementType getType()
+    public virtual bool check(IPlayer chr, int? npcid)
     {
-        return type;
+        return true;
     }
 }

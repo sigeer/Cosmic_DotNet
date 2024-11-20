@@ -21,6 +21,7 @@
  */
 
 
+using Application.Core.Game.QuestDomain.RewardAdapter;
 using Application.Core.Game.Skills;
 using client;
 
@@ -36,41 +37,12 @@ namespace server.quest.actions;
  */
 public class SkillAction : AbstractQuestAction
 {
-    int itemEffect;
     Dictionary<int, SkillData> skillData = new();
 
-    public SkillAction(Quest quest, Data data) : base(QuestActionType.SKILL, quest)
+    public SkillAction(IRewardSkillAdapter adapter, Quest quest) : base(adapter, quest)
     {
+        skillData = adapter.GetData();
 
-        processData(data);
-    }
-
-
-    public override void processData(Data data)
-    {
-        foreach (Data sEntry in data)
-        {
-            byte skillLevel = 0;
-            int skillid = DataTool.getInt(sEntry.getChildByPath("id"));
-            var skillLevelData = sEntry.getChildByPath("skillLevel");
-            if (skillLevelData != null)
-            {
-                skillLevel = (byte)DataTool.getInt(skillLevelData);
-            }
-            int masterLevel = DataTool.getInt(sEntry.getChildByPath("masterLevel"));
-            List<int> jobs = new();
-
-            var applicableJobs = sEntry.getChildByPath("job");
-            if (applicableJobs != null)
-            {
-                foreach (Data applicableJob in applicableJobs.getChildren())
-                {
-                    jobs.Add(DataTool.getInt(applicableJob));
-                }
-            }
-
-            skillData.AddOrUpdate(skillid, new SkillData(skillid, skillLevel, masterLevel, jobs));
-        }
     }
 
     public override void run(IPlayer chr, int? extSelection)
@@ -83,7 +55,7 @@ public class SkillAction : AbstractQuestAction
                 continue;
             }
 
-            bool shouldLearn = skill.jobsContains(chr.getJob()) || skillObject.isBeginnerSkill();
+            bool shouldLearn = skill.jobsContains(chr.getJobId()) || skillObject.isBeginnerSkill();
 
             sbyte skillLevel = (sbyte)Math.Max(skill.getLevel(), chr.getSkillLevel(skillObject));
             int masterLevel = Math.Max(skill.getMasterLevel(), chr.getMasterLevel(skillObject));
@@ -93,41 +65,5 @@ public class SkillAction : AbstractQuestAction
             }
 
         }
-    }
-
-    private class SkillData
-    {
-        protected int id, level, masterLevel;
-        List<int> jobs = new();
-
-        public SkillData(int id, int level, int masterLevel, List<int> jobs)
-        {
-            this.id = id;
-            this.level = level;
-            this.masterLevel = masterLevel;
-            this.jobs = jobs;
-        }
-
-        public int getId()
-        {
-            return id;
-        }
-
-        public int getLevel()
-        {
-            return level;
-        }
-
-        public int getMasterLevel()
-        {
-            return masterLevel;
-        }
-
-        public bool jobsContains(Job job)
-        {
-            return jobs.Contains(job.getId());
-        }
-
-
     }
 }

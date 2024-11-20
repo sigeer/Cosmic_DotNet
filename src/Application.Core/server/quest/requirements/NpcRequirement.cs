@@ -20,6 +20,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
+
 namespace server.quest.requirements;
 
 /**
@@ -29,16 +31,10 @@ public class NpcRequirement : AbstractQuestRequirement
 {
     private int reqNPC;
 
-    public NpcRequirement(Quest quest, Data data) : base(QuestRequirementType.NPC)
+    public NpcRequirement(IRequirementDataAdapter adapter) : base(adapter)
     {
-        processData(data);
+        reqNPC = adapter.GetIntValue();
     }
-
-    public override void processData(Data data)
-    {
-        reqNPC = DataTool.getInt(data);
-    }
-
 
     public override bool check(IPlayer chr, int? npcid)
     {

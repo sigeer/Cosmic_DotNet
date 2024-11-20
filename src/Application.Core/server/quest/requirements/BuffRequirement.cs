@@ -18,6 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
+
 namespace server.quest.requirements;
 
 /**
@@ -27,15 +29,9 @@ public class BuffRequirement : AbstractQuestRequirement
 {
     private int buffId = 1;
 
-    public BuffRequirement(Quest quest, Data data) : base(QuestRequirementType.BUFF)
+    public BuffRequirement(IRequirementDataAdapter adpter) : base(adpter)
     {
-        processData(data);
-    }
-
-    public override void processData(Data data)
-    {
-        // item buffs are negative
-        buffId = -1 * int.Parse(DataTool.getString(data));
+        buffId = -adpter.GetIntValue();
     }
 
     public override bool check(IPlayer chr, int? npcid)

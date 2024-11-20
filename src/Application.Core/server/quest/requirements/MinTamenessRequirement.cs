@@ -20,6 +20,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
+
 namespace server.quest.requirements;
 
 /**
@@ -29,20 +31,10 @@ public class MinTamenessRequirement : AbstractQuestRequirement
 {
     private int minTameness;
 
-
-    public MinTamenessRequirement(Quest quest, Data data) : base(QuestRequirementType.MIN_PET_TAMENESS)
+    public MinTamenessRequirement(IRequirementDataAdapter adapter) : base(adapter)
     {
-        processData(data);
+        minTameness = adapter.GetIntValue();
     }
-
-    /**
-     * @param data
-     */
-    public override void processData(Data data)
-    {
-        minTameness = DataTool.getInt(data);
-    }
-
 
     public override bool check(IPlayer chr, int? npcid)
     {

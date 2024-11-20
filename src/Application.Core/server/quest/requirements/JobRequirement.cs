@@ -21,6 +21,7 @@
  */
 
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
 using client;
 
 namespace server.quest.requirements;
@@ -35,20 +36,9 @@ public class JobRequirement : AbstractQuestRequirement
 {
     List<int> jobs = new();
 
-    public JobRequirement(Quest quest, Data data) : base(QuestRequirementType.JOB)
+    public JobRequirement(IRequirementJobAdapter adapter) : base(adapter)
     {
-        processData(data);
-    }
-
-    /**
-     * @param data
-     */
-    public override void processData(Data data)
-    {
-        foreach (Data jobEntry in data.getChildren())
-        {
-            jobs.Add(DataTool.getInt(jobEntry));
-        }
+        jobs = adapter.GetData();
     }
 
 

@@ -21,6 +21,7 @@
  */
 
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
 using client;
 
 namespace server.quest.requirements;
@@ -32,21 +33,15 @@ public class IntervalRequirement : AbstractQuestRequirement
 {
     private long interval = -1;
     private int questID;
-
-    public IntervalRequirement(Quest quest, Data data) : base(QuestRequirementType.INTERVAL)
+    public IntervalRequirement(int questId, IRequirementDataAdapter adapter) : base(adapter)
     {
-        questID = quest.getId();
-        processData(data);
+        questID = questId;
+        interval = adapter.GetIntValue() * 60 * 1000;
     }
 
     public long getInterval()
     {
         return interval;
-    }
-
-    public override void processData(Data data)
-    {
-        interval = (DataTool.getInt(data)) * 60 * 1000;
     }
 
     private static string getIntervalTimeLeft(IPlayer chr, IntervalRequirement r)

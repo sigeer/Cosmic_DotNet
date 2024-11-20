@@ -21,6 +21,7 @@
  */
 
 
+using Application.Core.Game.QuestDomain.RewardAdapter;
 using client;
 
 namespace server.quest.actions;
@@ -35,23 +36,11 @@ public class QuestAction : AbstractQuestAction
 {
     Dictionary<int, int> quests = new();
 
-    public QuestAction(Quest quest, Data data) : base(QuestActionType.QUEST, quest)
+    public QuestAction(IRewardQuestAdapter action, Quest quest) : base(action, quest)
     {
-
-        questID = quest.getId();
-        processData(data);
+        quests = action.GetQuests();
     }
 
-
-    public override void processData(Data data)
-    {
-        foreach (Data qEntry in data)
-        {
-            int questid = DataTool.getInt(qEntry.getChildByPath("id"));
-            int stat = DataTool.getInt(qEntry.getChildByPath("state"));
-            quests.AddOrUpdate(questid, stat);
-        }
-    }
 
     public override void run(IPlayer chr, int? extSelection)
     {

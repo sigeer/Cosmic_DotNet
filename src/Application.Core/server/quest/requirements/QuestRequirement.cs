@@ -18,6 +18,7 @@
 */
 
 
+using Application.Core.Game.QuestDomain.RequirementAdapter;
 using client;
 
 namespace server.quest.requirements;
@@ -32,24 +33,10 @@ public class QuestRequirement : AbstractQuestRequirement
 {
     Dictionary<int, int> quests = new();
 
-    public QuestRequirement(Quest quest, Data data) : base(QuestRequirementType.QUEST)
+    public QuestRequirement(IRequirementQuestAdapter adapter) : base(adapter)
     {
-        processData(data);
+        quests = adapter.GetData();
     }
-
-    /**
-     * @param data
-     */
-    public override void processData(Data data)
-    {
-        foreach (Data questEntry in data.getChildren())
-        {
-            int questID = DataTool.getInt(questEntry.getChildByPath("id"));
-            int stateReq = DataTool.getInt(questEntry.getChildByPath("state"));
-            quests.AddOrUpdate(questID, stateReq);
-        }
-    }
-
 
     public override bool check(IPlayer chr, int? npcid)
     {
