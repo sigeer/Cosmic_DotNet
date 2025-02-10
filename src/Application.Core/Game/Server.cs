@@ -517,7 +517,6 @@ public class Server
         return playerRanking = RankManager.LoadPlayerRankingFromDB();
     }
 
-
     private async Task InitialDataBase()
     {
         log.Information("初始化数据库...");
@@ -542,10 +541,13 @@ public class Server
     }
 
     bool basedCached = false;
-    private async Task PreCheck(bool ignoreCache = false)
+    private async Task Initialize(bool ignoreCache = false)
     {
         if (!ignoreCache && basedCached)
             return;
+
+        if (!Directory.Exists(ScriptResFactory.ScriptDirName) || !Directory.Exists(WZFiles.DIRECTORY))
+            throw new DirectoryNotFoundException();
 
         await InitialDataBase();
 
@@ -605,17 +607,17 @@ public class Server
         Stopwatch totalSw = new Stopwatch();
         totalSw.Start();
 
-        await PreCheck(ignoreCache);
-
-        if (YamlConfig.config.server.SHUTDOWNHOOK)
-        {
-            AppDomain.CurrentDomain.ProcessExit += (obj, evt) => shutdown(false);
-        }
-
-        channelDependencies = registerChannelDependencies();
-
         try
         {
+            await Initialize(ignoreCache);
+
+            if (YamlConfig.config.server.SHUTDOWNHOOK)
+            {
+                AppDomain.CurrentDomain.ProcessExit += (obj, evt) => shutdown(false);
+            }
+
+            channelDependencies = registerChannelDependencies();
+
             using var dbContext = new DBContext();
             setAllLoggedOut(dbContext);
             setAllMerchantsInactive(dbContext);
@@ -627,17 +629,9 @@ public class Server
             applyAllNameChanges(dbContext); // -- name changes can be missed by INSTANT_NAME_CHANGE --
             applyAllWorldTransfers(dbContext);
             PlayerNPC.loadRunningRankData(dbContext);
-        }
-        catch (Exception sqle)
-        {
-            log.Error(sqle, "Failed to run all startup-bound database tasks");
-            throw;
-        }
 
-        await initializeTimelyTasks(channelDependencies);    // aggregated method for timely tasks thanks to lxconan
+            await initializeTimelyTasks(channelDependencies);    // aggregated method for timely tasks thanks to lxconan
 
-        try
-        {
             var worlds = ServerManager.LoadAllWorld().Where(x => x.CanDeploy).ToList();
             foreach (var worldConfig in worlds)
             {
@@ -649,26 +643,27 @@ public class Server
 
             if (YamlConfig.config.server.USE_FAMILY_SYSTEM)
             {
-                using var dbContext = new DBContext();
                 Family.loadAllFamilies(dbContext);
             }
+
+            // Wait on all async tasks to complete
+            loginServer = await initLoginServer(8484);
+            IsOnline = true;
+
+            log.Information("Listening on port 8484");
+
+            totalSw.Stop();
+            log.Information("Cosmic is now online after {StartupCost}s.", totalSw.Elapsed.TotalSeconds);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            log.Error(e, "[SEVERE] Syntax error in 'world.ini'."); //For those who get errors
+            log.Error(ex, "启动失败");
+            throw;
         }
-
-        // Wait on all async tasks to complete
-
-        loginServer = await initLoginServer(8484);
-        IsOnline = true;
-
-        log.Information("Listening on port 8484");
-
-        totalSw.Stop();
-        log.Information("Cosmic is now online after {StartupCost}s.", totalSw.Elapsed.TotalSeconds);
-
-        IsStarting = false;
+        finally
+        {
+            IsStarting = false;
+        }
     }
 
     private ChannelDependencies registerChannelDependencies()

@@ -25,6 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{DCCF81D5-1
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflow", "workflow", "{BD851960-79BB-4DE0-901D-CA29E0DF1FCA}"
 	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build-docker.yml = .github\workflows\build-docker.yml
 		.github\workflows\build.yml = .github\workflows\build.yml
 	EndProjectSection
 EndProject
@@ -43,6 +44,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application.Resources", "src\Application.Resources\Application.Resources.csproj", "{D000318F-55A6-4B49-B73C-4D5568C4FDC9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceTest", "test\ServiceTest\ServiceTest.csproj", "{495690B4-0416-4C12-A9FA-5742C47EEB24}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{E6B06671-1E36-482B-9E7D-578D413F3879}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -82,6 +85,10 @@ Global
 		{495690B4-0416-4C12-A9FA-5742C47EEB24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{495690B4-0416-4C12-A9FA-5742C47EEB24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{495690B4-0416-4C12-A9FA-5742C47EEB24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6B06671-1E36-482B-9E7D-578D413F3879}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6B06671-1E36-482B-9E7D-578D413F3879}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6B06671-1E36-482B-9E7D-578D413F3879}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6B06671-1E36-482B-9E7D-578D413F3879}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

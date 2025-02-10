@@ -16,7 +16,7 @@ public class WZFiles
     public static readonly WZFiles SOUND = new("Sound");
     public static readonly WZFiles UI = new("UI");
 
-    public static string DIRECTORY = getWzDirectory();
+    public readonly static string DIRECTORY = getWzDirectory();
 
     private string fileName;
 
@@ -43,6 +43,6 @@ public class WZFiles
             return propertyPath;
         }
 
-        return "wz";
+        return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wz");
     }
 }

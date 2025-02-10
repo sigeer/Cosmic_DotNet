@@ -1,0 +1,36 @@
+services:
+  application.host:
+    image: ${DOCKER_REGISTRY-}applicationhost
+    build:
+      context: .
+      dockerfile: src/Application.Host/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+      # 登录服务器
+      - "8484:8484"
+      # 频道服务器
+      - "7575-7800:7575-7800"
+    volumes:
+      - ./config.yaml:/app/config.yaml
+      - ./scripts:/app/scripts
+      - ./wz:/app/wz
+
+  db:
+    image: mysql:8.4.4
+    environment:
+      MYSQL_DATABASE: "cosmic"
+      MYSQL_ROOT_PASSWORD: "aA123456"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db/data:/var/lib/mysql
+      - ./db/log:/var/log/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 30s
+      retries: 5
+      timeout: 10s
+      start_period: 10s
