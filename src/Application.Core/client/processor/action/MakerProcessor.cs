@@ -433,7 +433,7 @@ public class MakerProcessor
         foreach (var p in recipe.getReqItems())
         {
             int itemId = p.ItemId;
-            if (c.OnlinedCharacter.getInventory(ItemConstants.getInventoryType(itemId)).countById(itemId) < p.Quantity)
+            if (c.OnlinedCharacter.countItem(itemId) < p.Quantity)
             {
                 return false;
             }
